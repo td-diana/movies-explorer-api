@@ -4,18 +4,14 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const { errors } = require('celebrate');
+const { limiter } = require('./utils/rateLimiter');
 const router = require('./routes/routes');
 const { handleError } = require('./middlewares/handleError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { mongo } = require('./utils/config');
 
-const { PORT = 3000 } = process.env;
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
+const { PORT = 3000, NODE_ENV, DATABASE_URL } = process.env;
 
 const app = express();
 app.use(cors());
@@ -30,6 +26,7 @@ app.use(errorLogger); // подключаем логгер ошибок
 app.use(errors());
 app.use(handleError);
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb');
+mongoose.connect(NODE_ENV === 'production' ? DATABASE_URL : mongo);
+// mongoose.connect('mongodb://localhost:27017/bitfilmsdb');
 
 app.listen(PORT);
