@@ -15,18 +15,15 @@ const { PORT = 3000, NODE_ENV, DATABASE_URL } = process.env;
 
 const app = express();
 app.use(cors());
+app.use(requestLogger); // подключаем логгер запросов
 app.use(limiter);
 app.use(bodyParser.json());
-
-app.use(requestLogger); // подключаем логгер запросов
-app.use(router);
 app.use(helmet());
+app.use(router);
 app.use(errorLogger); // подключаем логгер ошибок
-
 app.use(errors());
 app.use(handleError);
 
 mongoose.connect(NODE_ENV === 'production' ? DATABASE_URL : mongo);
-// mongoose.connect('mongodb://localhost:27017/bitfilmsdb');
 
 app.listen(PORT);
